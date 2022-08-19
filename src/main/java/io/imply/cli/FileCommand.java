@@ -17,14 +17,13 @@ public class FileCommand extends BaseCommand{
     @Option(names = {"-h", "--help"},
             usageHelp = true,
             description = "display this help and exit")
-    boolean help;
+    public boolean help;
 
     @Command(name = "list", description = "List all files")
     public void list(
             @Mixin Global settings) {
-        String response;
         try {
-            response = getRequest(PATH, settings);
+            String response = getRequest(PATH, settings);
             System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace();
@@ -35,9 +34,8 @@ public class FileCommand extends BaseCommand{
     public void upload(
             @Option(names ={"-f", "--file"}, description = "File to upload", required = true) File file,
             @Mixin Global settings) {
-        String response;
         try {
-            response = upload(file, PATH, settings);
+            String response = upload(file, PATH, settings);
             System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace();
@@ -49,9 +47,8 @@ public class FileCommand extends BaseCommand{
             @Option(names = {"-n","--name"}, description = "File Name", required = true)
                     String name,
             @Mixin Global settings) {
-        String response;
         try {
-            response = getRequest(PATH +"/" + name, settings);
+            String response = getRequest(PATH +"/" + name, settings);
             System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace();

@@ -9,8 +9,6 @@ import org.json.JSONObject;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
-import picocli.CommandLine.Spec;
-import picocli.CommandLine.Model.CommandSpec;
 
 import java.io.IOException;
 import java.util.Map;
@@ -22,9 +20,6 @@ public class JobCommand extends BaseCommand{
 
     private static final String PATH = "/v2/jobs";
 
-    @Spec
-    CommandSpec spec;
-
     @Option(names = {"-h", "--help"},
             usageHelp = true,
             description = "display this help and exit")
@@ -33,9 +28,8 @@ public class JobCommand extends BaseCommand{
     @Command(name = "list", description = "List all jobs")
     public void list(
             @Mixin Global settings) {
-        String response;
         try {
-            response = getRequest(PATH, settings);
+            String response = getRequest(PATH, settings);
             System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace();
@@ -47,9 +41,8 @@ public class JobCommand extends BaseCommand{
             @Option(names = {"-j","--jobId"}, description = "Job Id", required = true)
                     String jobId,
             @Mixin Global settings) {
-        String response;
         try {
-            response = getRequest(PATH +"/" + jobId, settings);
+            String response = getRequest(PATH +"/" + jobId, settings);
             System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace();
@@ -81,9 +74,8 @@ public class JobCommand extends BaseCommand{
                         .put("tableName", jobTargetV2.tableName)
                         .put("intervals", new JSONArray()))
                 .put("mappings", mapToJsonArray(inputToTableSchemaMappingsV2.mappings, "columnName", "expression"));
-        String response;
         try {
-            response = postJson(obj.toString(), PATH, settings);
+            String response = postJson(obj.toString(), PATH, settings);
             System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace();

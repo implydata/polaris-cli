@@ -13,14 +13,14 @@ import picocli.CommandLine.ParameterException;
 
 public class TableDetail {
 
-    public enum TablePartitioningGranularity{ hour, day, week, month, year };
+    public enum TablePartitioningGranularity{ hour, day, week, month, year }
 
     @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
     @Option(names = {"-n","--name"}, description = "Table name", required = true)
     public String name;
 
-    @Option(names = {"-v","--version"}, description = "Version", defaultValue = "0", required = true)
+    @Option(names = {"-v","--version"}, description = "Version number of the table", defaultValue = "0", required = true)
     public int version;
 
     @Option(names = {"-g","--granularity"}, description = "Enum values: ${COMPLETION-CANDIDATES}",
@@ -55,7 +55,7 @@ public class TableDetail {
                 .put("partitioningGranularity", partitioningGranularity.name())
                 .put("clusteringColumns", new JSONArray(clusteringColumns))
                 .put("description", description)
-                .put("schema", mapToJsonArray(schemaMap, "name", "dataType"));
+                .put("schema", mapToJsonArray(schemaMap));
         return obj.toString();
     }
 
@@ -71,7 +71,7 @@ public class TableDetail {
                 '}';
     }
 
-    private JSONArray mapToJsonArray(Map<String,String> map, String k1, String k2){
+    private JSONArray mapToJsonArray(Map<String,String> map){
         JSONArray mapArray = new JSONArray();
         if(map == null){
             return mapArray;
@@ -81,8 +81,8 @@ public class TableDetail {
             String k = entry.getKey();
             String v = entry.getValue();
             mapArray.put(new JSONObject()
-                    .put(k1, k)
-                    .put(k2, v));
+                    .put("name", k)
+                    .put("dataType", v));
         }
         return mapArray;
     }

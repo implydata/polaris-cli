@@ -16,14 +16,13 @@ public class TableCommand extends BaseCommand {
     @Option(names = {"-h", "--help"},
             usageHelp = true,
             description = "Display this help and exit")
-    boolean help;
+    public boolean help;
 
     @Command(name = "list", description = "List all tables")
     public void list(
             @Mixin Global settings) {
-        String response;
         try {
-            response = getRequest(PATH, settings);
+            String response = getRequest(PATH, settings);
             System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,7 +47,7 @@ public class TableCommand extends BaseCommand {
         System.out.println("table create aggregate command");
     }
 
-    @Command(name = "get", description = "Get a table detail (todo)")
+    @Command(name = "get", description = "Get a table detail")
     public void get(
             @Option(names = {"-n","--tableName"}, description = "Table Name", required = true)
                     String tableName,

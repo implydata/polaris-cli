@@ -12,7 +12,7 @@ public class DashboardCommand extends BaseCommand{
     @Option(names = {"-h", "--help"},
             usageHelp = true,
             description = "display this help and exit")
-    boolean help;
+    public boolean help;
 
     @Command(name = "list", description = "list all dashboards")
     public void list(

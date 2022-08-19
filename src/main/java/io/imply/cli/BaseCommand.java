@@ -1,11 +1,9 @@
 package io.imply.cli;
 
-
 import io.imply.cli.model.Global;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.ConnectTimeoutException;
+import org.apache.hc.client5.http.SystemDefaultDnsResolver;
+import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.entity.mime.FileBody;
@@ -13,21 +11,24 @@ import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.core5.http.*;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.util.Timeout;
 import org.json.JSONObject;
-import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public abstract class BaseCommand {
@@ -40,10 +41,21 @@ public abstract class BaseCommand {
     private static final String STAGING_ID = "https://id.saas-stg.imply.io/auth/realms/{0}/protocol/openid-connect/token";
     private static final String PROD_ID    = "https://id.imply.io/auth/realms/{0}/protocol/openid-connect/token";
 
-    Timeout timeout = Timeout.of(3, TimeUnit.SECONDS);
-    RequestConfig config = RequestConfig.custom()
+    private final Random ran = new Random();
+    private final Timeout timeout = Timeout.of(3, TimeUnit.SECONDS);
+    private final RequestConfig config = RequestConfig.custom()
             .setConnectTimeout(timeout)
             .setConnectionRequestTimeout(timeout ).build();
+
+    private final HttpClientConnectionManager manager = PoolingHttpClientConnectionManagerBuilder.create()
+            .setDnsResolver(new SystemDefaultDnsResolver() {
+        @Override
+        public InetAddress[] resolve(String host) throws UnknownHostException {
+            InetAddress[] addresses = InetAddress.getAllByName(host);
+            int i = ran.nextInt(addresses.length);
+            return new InetAddress[]{addresses[i]};
+        }
+    }).build();
 
     private String buildEndpoint(String env, String org){
         if("eng".equals(env)){
@@ -53,12 +65,14 @@ public abstract class BaseCommand {
         }else if("prod".equals(env)){
             return MessageFormat.format(PROD_URL, org);
         }
-        throw new IllegalArgumentException("unknown env:" + env);
+        throw new IllegalArgumentException("Unknown env:" + env);
     }
 
     public String getRequest(String path, Global global) throws IOException {
         try( CloseableHttpClient httpclient = HttpClientBuilder.create()
-                .setDefaultRequestConfig(config).build()){
+                .setDefaultRequestConfig(config)
+                .setConnectionManager(manager)
+                .build()){
             String url = buildEndpoint(global.environment.name(), global.organization);
             HttpGet httpget = new HttpGet(url + path);
             httpget.setHeader("Authorization", "Bearer " + global.token);
@@ -74,6 +88,8 @@ public abstract class BaseCommand {
                 return respEntity;
             } catch (ParseException e) {
                 e.printStackTrace();
+            } catch (ConnectTimeoutException e){
+                return e.getMessage();
             }
             return "Unknown error during get";
         }
@@ -83,14 +99,14 @@ public abstract class BaseCommand {
         StringEntity requestEntity = new StringEntity(
                 content,
                 ContentType.APPLICATION_JSON);
-        return post("PUT",requestEntity, path, global);
+        return service("PUT",requestEntity, path, global);
     }
 
     public String postJson(String content, String path, Global global) throws IOException {
         StringEntity requestEntity = new StringEntity(
                 content,
                 ContentType.APPLICATION_JSON);
-        return post("POST",requestEntity, path, global);
+        return service("POST",requestEntity, path, global);
     }
 
     public String upload(File file, String path, Global global) throws IOException{
@@ -98,17 +114,23 @@ public abstract class BaseCommand {
         HttpEntity reqEntity = MultipartEntityBuilder.create()
                 .addPart("bin", fileBody)
                 .build();
-        return post("POST", reqEntity, path, global);
+        return service("POST", reqEntity, path, global);
     }
 
-    private String post(String method, HttpEntity reqEntity, String path, Global global) throws IOException{
+    private String service(String method, HttpEntity reqEntity, String path, Global global) throws IOException{
         try( CloseableHttpClient httpclient = HttpClientBuilder.create()
-                .setDefaultRequestConfig(config).build()){
+                .setDefaultRequestConfig(config)
+                .setConnectionManager(manager)
+                .build()){
             String uri = buildEndpoint(global.environment.name(), global.organization);
 
-            HttpUriRequestBase baseRequest = null;
+            HttpUriRequestBase baseRequest;
             if("POST".equals(method)){
                 baseRequest = new HttpPost(uri + path);
+            }else if("PUT".equals(method)){
+                baseRequest = new HttpPut( uri + path);
+            }else{
+                throw new IllegalArgumentException("Unknown http method: " + method);
             }
 
             baseRequest.setHeader("Authorization", "Bearer " + global.token);
@@ -126,6 +148,8 @@ public abstract class BaseCommand {
                 return respEntity;
             } catch (ParseException e) {
                 e.printStackTrace();
+            } catch (ConnectTimeoutException e){
+                return e.getMessage();
             }
             return "Unknown error during post";
         }
@@ -145,7 +169,10 @@ public abstract class BaseCommand {
     public String retrieveToken(String env, String org, String clientId, String clientSecret, boolean verbose) throws IOException {
         String url = buildAuthenticateApi(env, org);
 
-        try(CloseableHttpClient client = HttpClients.createDefault()){
+        try(CloseableHttpClient client = HttpClientBuilder.create()
+                .setDefaultRequestConfig(config)
+                .setConnectionManager(manager)
+                .build()){
             HttpPost httpPost = new HttpPost(url);
             httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
             List<NameValuePair> params = new ArrayList<>();
@@ -159,19 +186,17 @@ public abstract class BaseCommand {
 
             try(CloseableHttpResponse response = client.execute(httpPost)){
                 HttpEntity entity = response.getEntity();
-                String result = "{}";
-                try {
-                    result = EntityUtils.toString(entity);
-                    if(verbose){
-                        printResponse(response);
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                String result = EntityUtils.toString(entity);
+                if(verbose){
+                    printResponse(response);
                 }
                 JSONObject obj = new JSONObject(result);
                 return obj.getString("access_token");
+            } catch (ParseException e){
+                e.printStackTrace();
             }
         }
+        return "Unknown error during retrieve token";
     }
 
     private void print(HttpUriRequest request){
@@ -187,9 +212,7 @@ public abstract class BaseCommand {
             try {
                 String s = EntityUtils.toString(entity);
                 System.out.println("    "+ s);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ParseException e) {
+            } catch (IOException | ParseException e) {
                 e.printStackTrace();
             }
         }

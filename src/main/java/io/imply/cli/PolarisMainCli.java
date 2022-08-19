@@ -5,7 +5,6 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Spec;
 import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.Option;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -48,10 +47,10 @@ public class PolarisMainCli implements Runnable{
     @Spec
     CommandSpec spec;
 
-    @Option(names = {"-h", "--help"},
+    @CommandLine.Option(names = {"-h", "--help"},
             usageHelp = true,
             description = "Display this help and exit")
-    boolean help;
+    public boolean help;
 
     public static void main(String[] args){
         CommandLine cli = new CommandLine(new PolarisMainCli());
@@ -60,6 +59,7 @@ public class PolarisMainCli implements Runnable{
 
     @Override
     public void run() {
-        spec.commandLine().usage(System.err);
+//        spec.commandLine().usage(System.err);
+        throw new CommandLine.ParameterException(spec.commandLine(), "Specify a subcommand");
     }
 }

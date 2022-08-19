@@ -1,8 +1,8 @@
 package io.imply.cli;
 
 import io.imply.cli.model.Global;
+import org.apache.hc.client5.http.ConnectTimeoutException;
 import org.json.JSONObject;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -18,7 +18,7 @@ public class LoginCommand extends BaseCommand implements Runnable{
     @Option(names = {"-h", "--help"},
             usageHelp = true,
             description = "display this help and exit")
-    boolean help;
+    public boolean help;
 
     @Option(names = {"-e","--environment"}, description = "Enum values: ${COMPLETION-CANDIDATES}",
             defaultValue = "${IMPLY_ENV}", required = true)
@@ -54,11 +54,14 @@ public class LoginCommand extends BaseCommand implements Runnable{
                         .put("IMPLY_TOKEN", token);
                 out.println(obj.toString(2));
 
-                System.out.println("logged in!");
+                System.out.println("Logged in!");
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Failed to retrieve token!");
+            if ( e instanceof ConnectTimeoutException){
+                System.out.println(e.getMessage());
+            }else{
+                e.printStackTrace();
+            }
         }
 
 
