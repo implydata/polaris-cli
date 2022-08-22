@@ -5,7 +5,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command(name = "user", description = "Manage user and it's access to protected data and resources",
+@Command(name = "users", description = "Manage user and it's access to protected data and resources",
         subcommandsRepeatable = true)
 public class UserCommand extends BaseCommand{
 
@@ -17,7 +17,7 @@ public class UserCommand extends BaseCommand{
     @Command(name = "list", description = "list all users")
     public void list(
             @Mixin Global settings) {
-        System.out.println("user list command");
+        System.out.println("Not supported yet");
     }
 
 }

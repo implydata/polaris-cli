@@ -5,7 +5,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command(name = "project", description = "Manage Imply Polaris resources",
+@Command(name = "projects", description = "Manage Imply Polaris resources",
         subcommandsRepeatable = true)
 public class ProjectCommand extends BaseCommand {
 
@@ -17,12 +17,12 @@ public class ProjectCommand extends BaseCommand {
     @Command(name = "list", description = "List all project plans")
     public void list(
             @Mixin Global settings) {
-        System.out.println("List project plans");
+        System.out.println("Not supported yet");
     }
 
     @Command(name = "update", description = "Update a project plan")
     public void update(
             @Mixin Global settings) {
-        System.out.println("Update project plan");
+        System.out.println("Not supported yet");
     }
 }

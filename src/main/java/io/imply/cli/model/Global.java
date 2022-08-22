@@ -1,10 +1,12 @@
 package io.imply.cli.model;
 
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 public class Global {
 
     public enum Environment { eng, staging, prod }
+    public enum Authorization { token,  basic }
 
     @Option(names = {"-h", "--help"},
             usageHelp = true,
@@ -19,9 +21,22 @@ public class Global {
             defaultValue = "${IMPLY_ORG}", required = true)
     public String organization;
 
-    @Option(names = {"-t", "--token"}, description = "The access token to a Polaris API",
-            defaultValue = "${IMPLY_TOKEN}", required = true)
-    public String token;
+    @ArgGroup(validate = false, heading = "Authorization section%n")
+    public AuthSection authSection = new AuthSection();
+
+    public static class AuthSection{
+        @Option(names = {"-t", "--token"}, description = "The access token to a Polaris API",
+                defaultValue = "${IMPLY_TOKEN}")
+        public String token;
+
+        @Option(names = {"-k", "--apiKey"}, description = "The apiKey to a Polaris API",
+                defaultValue = "${IMPLY_APIKEY}")
+        public String apiKey;
+    }
+
+    @Option(names = {"-a","--authorization"}, description = "Enum values: ${COMPLETION-CANDIDATES}",
+            defaultValue = "${IMPLY_AUTHORIZATION}")
+    public Authorization authorization;
 
     @Option(names= {"--verbose"}, description = "Enable to print debug info")
     public boolean verbose;

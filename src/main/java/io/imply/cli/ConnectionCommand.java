@@ -5,7 +5,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command(name = "connection", description = "Manage connections to external sources of data",
+@Command(name = "connections", description = "Manage connections to external sources of data",
         subcommandsRepeatable = true)
 public class ConnectionCommand extends BaseCommand{
 
@@ -17,49 +17,49 @@ public class ConnectionCommand extends BaseCommand{
     @Command(name = "list", description = "List all connections")
     public void list(
             @Mixin Global settings) {
-        System.out.println("List all connections");
+        System.out.println("Not supported yet");
     }
 
     @Command(name = "confluent", description = "Create a confluent connection")
     public void createConfluent(
             @Mixin Global settings) {
-        System.out.println("sources list command");
+        System.out.println("Not supported yet");
     }
 
     @Command(name = "push_streaming", description = "Create a push_streaming connection")
     public void createPushStreaming(
             @Mixin Global settings) {
-        System.out.println("sources list command");
+        System.out.println("Not supported yet");
     }
 
     @Command(name = "get", description = "Get connection details")
     public void get(
             @Mixin Global settings) {
-        System.out.println("Get connection details");
+        System.out.println("Not supported yet");
     }
 
     @Command(name = "update", description = "Update a connection")
     public void update(
             @Mixin Global settings) {
-        System.out.println("Update a connection");
+        System.out.println("Not supported yet");
     }
 
     @Command(name = "delete", description = "Delete a connection")
     public void delete(
             @Mixin Global settings) {
-        System.out.println("Delete a connection");
+        System.out.println("Not supported yet");
     }
 
     @Command(name = "secret", description = "Update connection secrets")
     public void secret(
             @Mixin Global settings) {
-        System.out.println("Update connection secrets");
+        System.out.println("Not supported yet");
     }
 
     @Command(name = "test", description = "Test a connection")
     public void test(
             @Mixin Global settings) {
-        System.out.println("Test a connection");
+        System.out.println("Not supported yet");
     }
 
 }

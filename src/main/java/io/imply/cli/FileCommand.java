@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 import java.io.File;
 import java.io.IOException;
 
-@Command(name = "file", description = "Upload, list, and delete files",
+@Command(name = "files", description = "Upload, list, and delete files",
         subcommandsRepeatable = true)
 public class FileCommand extends BaseCommand{
 
@@ -59,6 +59,6 @@ public class FileCommand extends BaseCommand{
     @Command(name = "delete", description = "Delete a file")
     public void delete(
             @Mixin Global settings) {
-        System.out.println("Delete a file");
+        System.out.println("Not supported yet");
     }
 }

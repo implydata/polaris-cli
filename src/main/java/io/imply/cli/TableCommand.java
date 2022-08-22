@@ -8,7 +8,7 @@ import picocli.CommandLine.Mixin;
 
 import java.io.IOException;
 
-@Command(name = "table", description = "Manage tables and their schemas", sortOptions = false)
+@Command(name = "tables", description = "Manage tables and their schemas", sortOptions = false)
 public class TableCommand extends BaseCommand {
 
     private static final String PATH = "/v2/tables";
@@ -44,7 +44,7 @@ public class TableCommand extends BaseCommand {
     @Command(name = "aggregate", description = "Create an aggregate table")
     public void createAggregate(
             @Mixin Global settings) {
-        System.out.println("table create aggregate command");
+        System.out.println("Not supported yet");
     }
 
     @Command(name = "get", description = "Get a table detail")

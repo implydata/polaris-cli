@@ -7,15 +7,17 @@ import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import picocli.CommandLine;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Spec;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 
 public class TableDetail {
 
     public enum TablePartitioningGranularity{ hour, day, week, month, year }
 
-    @CommandLine.Spec CommandLine.Model.CommandSpec spec;
+    @Spec
+    CommandSpec spec;
 
     @Option(names = {"-n","--name"}, description = "Table name", required = true)
     public String name;

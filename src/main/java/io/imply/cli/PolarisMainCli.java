@@ -3,6 +3,8 @@ package io.imply.cli;
 import org.json.JSONObject;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 import picocli.CommandLine.Model.CommandSpec;
 
@@ -11,13 +13,14 @@ import java.nio.file.Files;
 import java.util.Set;
 
 @Command(name = "polaris", subcommands = {
-        LoginCommand.class,
+        ConfigCommand.class,
         TableCommand.class,
         FileCommand.class,
         ConnectionCommand.class,
         EventCommand.class,
         JobCommand.class,
         SqlCommand.class,
+        ApiKeyCommand.class,
         DatacubeCommand.class,
         DashboardCommand.class,
         UserCommand.class,
@@ -47,7 +50,7 @@ public class PolarisMainCli implements Runnable{
     @Spec
     CommandSpec spec;
 
-    @CommandLine.Option(names = {"-h", "--help"},
+    @Option(names = {"-h", "--help"},
             usageHelp = true,
             description = "Display this help and exit")
     public boolean help;
@@ -60,6 +63,6 @@ public class PolarisMainCli implements Runnable{
     @Override
     public void run() {
 //        spec.commandLine().usage(System.err);
-        throw new CommandLine.ParameterException(spec.commandLine(), "Specify a subcommand");
+        throw new ParameterException(spec.commandLine(), "Specify a subcommand");
     }
 }

@@ -5,7 +5,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
-@Command(name = "dashboard", description = "Manage dashboards",
+@Command(name = "dashboards", description = "Manage dashboards",
         subcommandsRepeatable = true)
 public class DashboardCommand extends BaseCommand{
 

@@ -5,7 +5,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command(name = "datacube", description = "Manage data cubes",
+@Command(name = "datacubes", description = "Manage data cubes",
         subcommandsRepeatable = true)
 public class DatacubeCommand extends BaseCommand{
 

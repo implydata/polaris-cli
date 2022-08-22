@@ -3,12 +3,12 @@ package io.imply.cli;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 
-@Command(name = "event",
+@Command(name = "events",
         description = "Push events to a Polaris connection")
 public class EventCommand extends BaseCommand implements Runnable{
 
     @Option(names = {"-p","--payload"}, description = "Data to be pushed to the table in Polaris in " +
-            "newline-delimited JSON format. The JSON body must include a timestamp as a key-value pair.",
+            "newline-delimited JSON format",
             required = true)
     String payload;
 
@@ -19,6 +19,6 @@ public class EventCommand extends BaseCommand implements Runnable{
 
     @Override
     public void run() {
-
+        System.out.println("Not supported yet");
     }
 }

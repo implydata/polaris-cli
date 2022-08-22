@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-@Command(name = "job", description = "Manage jobs in Imply Polaris")
+@Command(name = "jobs", description = "Manage jobs in Imply Polaris")
 public class JobCommand extends BaseCommand{
 
     private static final String PATH = "/v2/jobs";
@@ -52,7 +52,7 @@ public class JobCommand extends BaseCommand{
     @Command(name = "update", description = "Update a job")
     public void update(
             @Mixin Global settings) {
-        System.out.println("Update a job");
+        System.out.println("Not supported yet");
     }
 
     @Command(name = "batch", description = "Create batch ingestion job")
@@ -85,19 +85,19 @@ public class JobCommand extends BaseCommand{
     @Command(name = "drop_table", description = "Create job to delete a table and all of its data")
     public void createDropTable(
             @Mixin Global settings) {
-        System.out.println("drop table....");
+        System.out.println("Not supported yet");
     }
 
     @Command(name = "delete_data", description = "Create job to delete data within a table")
     public void createDeleteData(
             @Mixin Global settings) {
-        System.out.println("delete data");
+        System.out.println("Not supported yet");
     }
 
     @Command(name = "streaming", description = "Create streaming ingestion job")
     public void createStreaming(
             @Mixin Global settings) {
-        System.out.println("streaming");
+        System.out.println("Not supported yet");
     }
 
     private JSONArray mapToJsonArray(Map<String,String> map, String k1, String k2){

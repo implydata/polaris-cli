@@ -31,15 +31,17 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+
+
 public abstract class BaseCommand {
 
-    private static final String ENG_URL     = "https://{0}.api.eng.imply.io";
-    private static final String STAGING_URL = "https://{0}.api.saas-stg.imply.io";
-    private static final String PROD_URL    = "https://{0}.api.imply.io";
+    private static final String ENG_URL     = "https://{0}.api.eng.imply.io{1}";
+    private static final String STAGING_URL = "https://{0}.api.saas-stg.imply.io{1}";
+    private static final String PROD_URL    = "https://{0}.api.imply.io{1}";
 
-    private static final String ENG_ID     = "https://id.eng.imply.io/auth/realms/{0}/protocol/openid-connect/token";
-    private static final String STAGING_ID = "https://id.saas-stg.imply.io/auth/realms/{0}/protocol/openid-connect/token";
-    private static final String PROD_ID    = "https://id.imply.io/auth/realms/{0}/protocol/openid-connect/token";
+    private static final String ENG_ID     = "https://id.eng.imply.io/auth/realms/{0}{1}";
+    private static final String STAGING_ID = "https://id.saas-stg.imply.io/auth/realms/{0}{2}";
+    private static final String PROD_ID    = "https://id.imply.io/auth/realms/{0}{2}";
 
     private final Random ran = new Random();
     private final Timeout timeout = Timeout.of(3, TimeUnit.SECONDS);
@@ -57,42 +59,44 @@ public abstract class BaseCommand {
         }
     }).build();
 
-    private String buildEndpoint(String env, String org){
-        if("eng".equals(env)){
-            return MessageFormat.format(ENG_URL, org);
-        }else if("staging".equals(env)){
-            return MessageFormat.format(STAGING_URL, org);
-        }else if("prod".equals(env)){
-            return MessageFormat.format(PROD_URL, org);
+    private String buildEndpoint(String env, String org, String path){
+        if(isIDRequest(path)){
+            if("eng".equals(env)){
+                return MessageFormat.format(ENG_ID, org, path);
+            }else if("staging".equals(env)){
+                return MessageFormat.format(STAGING_ID, org, path);
+            }else if("prod".equals(env)){
+                return MessageFormat.format(PROD_ID, org, path);
+            }
+        }else{
+            if("eng".equals(env)){
+                return MessageFormat.format(ENG_URL, org, path);
+            }else if("staging".equals(env)){
+                return MessageFormat.format(STAGING_URL, org, path);
+            }else if("prod".equals(env)){
+                return MessageFormat.format(PROD_URL, org, path);
+            }
         }
         throw new IllegalArgumentException("Unknown env:" + env);
     }
 
+    private boolean isIDRequest(String path){
+        return "/protocol/openid-connect/token".equals(path) || path.startsWith("/apikeys");
+    }
+
     public String getRequest(String path, Global global) throws IOException {
-        try( CloseableHttpClient httpclient = HttpClientBuilder.create()
-                .setDefaultRequestConfig(config)
-                .setConnectionManager(manager)
-                .build()){
-            String url = buildEndpoint(global.environment.name(), global.organization);
-            HttpGet httpget = new HttpGet(url + path);
-            httpget.setHeader("Authorization", "Bearer " + global.token);
-            if(global.verbose){
-                print(httpget);
-            }
-            try(CloseableHttpResponse httpresponse = httpclient.execute(httpget)){
-                HttpEntity entity = httpresponse.getEntity();
-                String respEntity = EntityUtils.toString(entity);
-                if(global.verbose){
-                    printResponse(httpresponse);
-                }
-                return respEntity;
-            } catch (ParseException e) {
-                e.printStackTrace();
-            } catch (ConnectTimeoutException e){
-                return e.getMessage();
-            }
-            return "Unknown error during get";
-        }
+        return service("GET", null, path, global);
+    }
+
+    public String deleteRequest(String path, Global global) throws IOException {
+        return service("DELETE", null, path, global);
+    }
+
+    public String patchRequest(String content, String path, Global global) throws IOException {
+        StringEntity requestEntity = new StringEntity(
+                content,
+                ContentType.APPLICATION_JSON);
+        return service("PATCH", requestEntity, path, global);
     }
 
     public String putJSON(String content, String path, Global global) throws IOException {
@@ -117,33 +121,50 @@ public abstract class BaseCommand {
         return service("POST", reqEntity, path, global);
     }
 
+
     private String service(String method, HttpEntity reqEntity, String path, Global global) throws IOException{
         try( CloseableHttpClient httpclient = HttpClientBuilder.create()
                 .setDefaultRequestConfig(config)
                 .setConnectionManager(manager)
                 .build()){
-            String uri = buildEndpoint(global.environment.name(), global.organization);
+            String url = buildEndpoint(global.environment.name(), global.organization, path);
 
             HttpUriRequestBase baseRequest;
             if("POST".equals(method)){
-                baseRequest = new HttpPost(uri + path);
+                baseRequest = new HttpPost(url);
             }else if("PUT".equals(method)){
-                baseRequest = new HttpPut( uri + path);
+                baseRequest = new HttpPut( url);
+            }else if("GET".equals(method)){
+                baseRequest = new HttpGet(url);
+            }else if("DELETE".equals(method)){
+                baseRequest = new HttpDelete(url);
+            }else if("PATCH".equals(method)){
+                baseRequest = new HttpPatch(url);
             }else{
                 throw new IllegalArgumentException("Unknown http method: " + method);
             }
 
-            baseRequest.setHeader("Authorization", "Bearer " + global.token);
-            baseRequest.setHeader("Accept", "application/json");
-            baseRequest.setEntity(reqEntity);
+            if(global.authorization == Global.Authorization.token || isIDRequest(path)){
+                baseRequest.setHeader("Authorization", "Bearer " + global.authSection.token);
+            }else{
+                baseRequest.setHeader("Authorization", "Basic " + global.authSection.apiKey);
+            }
+            if (reqEntity !=null ){
+                baseRequest.setHeader("Accept", "application/json");
+                baseRequest.setEntity(reqEntity);
+            }
+
             if(global.verbose){
                 print(baseRequest);
             }
             try(CloseableHttpResponse httpresponse = httpclient.execute(baseRequest)){
                 HttpEntity entity = httpresponse.getEntity();
-                String respEntity = EntityUtils.toString(entity);
+                String respEntity = null;
+                if (entity !=null){
+                    respEntity = EntityUtils.toString(entity);
+                }
                 if(global.verbose){
-                    printResponse(httpresponse);
+                    printResponse(httpresponse, respEntity);
                 }
                 return respEntity;
             } catch (ParseException e) {
@@ -151,29 +172,18 @@ public abstract class BaseCommand {
             } catch (ConnectTimeoutException e){
                 return e.getMessage();
             }
-            return "Unknown error during post";
+            return "Unknown error during request";
         }
     }
 
-    private String buildAuthenticateApi(String env, String org){
-        if("eng".equals(env)){
-            return MessageFormat.format(ENG_ID, org);
-        }else if("staging".equals(env)){
-            return MessageFormat.format(STAGING_ID, org);
-        }else if("prod".equals(env)){
-            return MessageFormat.format(PROD_ID, org);
-        }
-        throw new IllegalArgumentException("Unknown env:" + env);
-    }
-
-    public String retrieveToken(String env, String org, String clientId, String clientSecret, boolean verbose) throws IOException {
-        String url = buildAuthenticateApi(env, org);
+    public String retrieveToken(String env, String org, String path, String clientId, String clientSecret, boolean verbose) throws IOException {
+        String url = buildEndpoint(env, org, path);
 
         try(CloseableHttpClient client = HttpClientBuilder.create()
                 .setDefaultRequestConfig(config)
                 .setConnectionManager(manager)
                 .build()){
-            HttpPost httpPost = new HttpPost(url);
+            HttpPost httpPost = new HttpPost(url );
             httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("client_id", clientId));
@@ -188,7 +198,7 @@ public abstract class BaseCommand {
                 HttpEntity entity = response.getEntity();
                 String result = EntityUtils.toString(entity);
                 if(verbose){
-                    printResponse(response);
+                    printResponse(response, result);
                 }
                 JSONObject obj = new JSONObject(result);
                 return obj.getString("access_token");
@@ -200,7 +210,7 @@ public abstract class BaseCommand {
     }
 
     private void print(HttpUriRequest request){
-        System.out.println("---http request---");
+        System.out.println("---http request begin---");
         try {
             System.out.println("    "+request.getMethod() + " " + request.getUri());
         } catch (URISyntaxException e) {
@@ -216,6 +226,7 @@ public abstract class BaseCommand {
                 e.printStackTrace();
             }
         }
+        System.out.println("---http request end---");
     }
 
     private void printHeaders(Header[] headers){
@@ -224,10 +235,12 @@ public abstract class BaseCommand {
         }
     }
 
-    private void printResponse(CloseableHttpResponse response){
-        System.out.println("---http response---");
-        printHeaders(response.getHeaders());
-        System.out.println("    Status Code:"+response.getCode());
+    private void printResponse(CloseableHttpResponse response, String result){
+        System.out.println("---http response begin---");
+//        printHeaders(response.getHeaders());
+        System.out.println("    Status Code:" + response.getCode());
+        System.out.println("    Response Body:" + result);
+        System.out.println("---http response end---");
     }
 
 }
