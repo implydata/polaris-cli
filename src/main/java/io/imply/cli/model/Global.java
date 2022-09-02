@@ -21,7 +21,7 @@ public class Global {
             defaultValue = "${IMPLY_ORG}", required = true)
     public String organization;
 
-    @ArgGroup(validate = false, heading = "Authorization section%n")
+    @ArgGroup(heading = "Select token or API Key as auth method%n")
     public AuthSection authSection = new AuthSection();
 
     public static class AuthSection{

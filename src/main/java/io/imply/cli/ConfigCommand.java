@@ -17,7 +17,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 
 @Command(name = "config",
-        description = "Obtain an API token and save it for later use",
+        description = "Config CLI for env,org,token and apKey",
         sortOptions = false)
 public class ConfigCommand extends BaseCommand implements Runnable{
 
@@ -41,29 +41,30 @@ public class ConfigCommand extends BaseCommand implements Runnable{
             defaultValue = "${IMPLY_ORG}", required = true)
     String organization;
 
-    @ArgGroup(heading = "Token section%n", exclusive = false)
-    TokenSection tokenSection;
+    @ArgGroup
+    TokenAPIGroup tokenAPIGroup;
 
-    @ArgGroup(validate = false, heading = "Api key section%n")
-    ApikeySection apikeySection;
+    @Option(names = {"-k", "--apiKey"}, description = "The apiKey to a Polaris API", defaultValue = "${IMPLY_APIKEY}")
+    public String apiKey;
 
     @Option(names = {"--auth"}, description = "Enum values: ${COMPLETION-CANDIDATES}",
-            defaultValue = "${IMPLY_AUTHORIZATION}")
+            defaultValue = "${IMPLY_AUTHORIZATION}", required = true)
     public Global.Authorization authorization;
 
-    static class TokenSection{
-        @Option(names = {"--client_id"}, description = "The name of the client you configured",
-                defaultValue = "${IMPLY_CLIENT_ID}", required = true)
-        String client_id;
+    static class TokenAPIGroup{
+        @ArgGroup(heading = "Client ID/Secret section%n", exclusive = false)
+        ClientIdSection clientSection;
 
-        @Option(names = {"--client_secret"}, description = "API Client Secret generated for the client",
-                defaultValue = "${IMPLY_CLIENT_SECRET}", required = true)
-        String client_secret;
+        @Option(names = {"-t", "--token"}, description = "Set an user or client token", required = true)
+        public String token;
     }
 
-    static class ApikeySection{
-        @Option(names = {"-k", "--apiKey"}, description = "The apiKey to a Polaris API")
-        public String apiKey;
+    static class ClientIdSection {
+        @Option(names = {"--client_id"}, description = "The name of the client you configured", required = true)
+        String client_id;
+
+        @Option(names = {"--client_secret"}, description = "API Client Secret generated for the client", required = true)
+        String client_secret;
     }
 
     @Option(names= {"--verbose"}, description = "Enable to print debug info")
@@ -74,22 +75,27 @@ public class ConfigCommand extends BaseCommand implements Runnable{
         // retrieve token from POLARIS
         try {
             JSONObject obj = read(file);
-            if(apikeySection != null){
-                obj.put("IMPLY_APIKEY", apikeySection.apiKey);
+            obj.put("IMPLY_ENV", environment)
+                    .put("IMPLY_ORG", organization);
+
+            if(apiKey != null){
+                obj.put("IMPLY_APIKEY", apiKey);
             }
 
-            if(tokenSection != null){
+            if(tokenAPIGroup!=null && tokenAPIGroup.clientSection != null){
                 String token = retrieveToken(
                         environment.name(), organization,
                         PATH,
-                        tokenSection.client_id, tokenSection.client_secret, verbose);
-                obj.put("IMPLY_ENV", environment)
-                        .put("IMPLY_ORG", organization)
-                        .put("IMPLY_TOKEN", token);
+                        tokenAPIGroup.clientSection.client_id, tokenAPIGroup.clientSection.client_secret, verbose);
+                obj.put("IMPLY_TOKEN", token);
+            }
+
+            if(tokenAPIGroup!=null && tokenAPIGroup.token != null){
+                obj.put("IMPLY_TOKEN", tokenAPIGroup.token);
             }
 
             if(authorization == Global.Authorization.token && !obj.has("IMPLY_TOKEN")) {
-                throw new ParameterException(spec.commandLine(), "client_id/client_secret is required");
+                throw new ParameterException(spec.commandLine(), "client_id/client_secret, or token is required");
             }
 
             if(authorization == Global.Authorization.basic && !obj.has("IMPLY_APIKEY")) {

@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-@Command(name = "jobs", description = "Manage jobs in Imply Polaris")
+@Command(name = "jobs", description = "Manage ingestion and deletion jobs in Polaris(v2)")
 public class JobCommand extends BaseCommand{
 
     private static final String PATH = "/v2/jobs";

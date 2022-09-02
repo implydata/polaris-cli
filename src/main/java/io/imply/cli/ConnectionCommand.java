@@ -5,7 +5,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
-@Command(name = "connections", description = "Manage connections to external sources of data",
+@Command(name = "connections", description = "Manage connections to external sources of data(v2)",
         subcommandsRepeatable = true)
 public class ConnectionCommand extends BaseCommand{
 

@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 import java.io.File;
 import java.io.IOException;
 
-@Command(name = "files", description = "Upload, list, and delete files",
+@Command(name = "files", description = "Upload, list, and delete files(v1)",
         subcommandsRepeatable = true)
 public class FileCommand extends BaseCommand{
 

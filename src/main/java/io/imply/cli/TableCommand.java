@@ -8,7 +8,7 @@ import picocli.CommandLine.Mixin;
 
 import java.io.IOException;
 
-@Command(name = "tables", description = "Manage tables and their schemas", sortOptions = false)
+@Command(name = "tables", description = "Create, view, and update tables(v2)", sortOptions = false)
 public class TableCommand extends BaseCommand {
 
     private static final String PATH = "/v2/tables";

@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 @Command(name = "sql",
-        description = "Start running SQL queries against the data")
+        description = "Issue SQL queries against Polaris tables(v1)")
 public class SqlCommand extends BaseCommand implements Runnable{
 
     private static final String path = "/v1/query/sql";

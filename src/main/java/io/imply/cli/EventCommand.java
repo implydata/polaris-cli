@@ -4,7 +4,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 
 @Command(name = "events",
-        description = "Push events to a Polaris connection")
+        description = "Load data from an external data stream(v1)")
 public class EventCommand extends BaseCommand implements Runnable{
 
     @Option(names = {"-p","--payload"}, description = "Data to be pushed to the table in Polaris in " +
