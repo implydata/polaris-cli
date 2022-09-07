@@ -1,6 +1,7 @@
 package io.imply.cli;
 
 import io.imply.cli.model.Global;
+import io.imply.cli.util.AsciiTable;
 import org.apache.hc.client5.http.ConnectTimeoutException;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
 import org.apache.hc.client5.http.classic.methods.*;
@@ -18,6 +19,7 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.util.Timeout;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -30,8 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
-
 
 public abstract class BaseCommand {
 
@@ -145,9 +145,9 @@ public abstract class BaseCommand {
             }
 
             if(global.authorization == Global.Authorization.token || isIDRequest(path)){
-                baseRequest.setHeader("Authorization", "Bearer " + global.authSection.token);
+                baseRequest.setHeader("Authorization", "Bearer " + global.token);
             }else{
-                baseRequest.setHeader("Authorization", "Basic " + global.authSection.apiKey);
+                baseRequest.setHeader("Authorization", "Basic " + global.apiKey);
             }
             if (reqEntity !=null ){
                 baseRequest.setHeader("Accept", "application/json");
@@ -241,6 +241,27 @@ public abstract class BaseCommand {
         System.out.println("    Status Code:" + response.getCode());
         System.out.println("    Response Body:" + result);
         System.out.println("---http response end---");
+    }
+
+    public void print(Global settings, String resp){
+        if(settings.output == Global.Output.json){
+            System.out.println(resp);
+        }else{
+            if(resp.startsWith("{")){
+                JSONObject obj = new JSONObject(resp);
+                if(obj.has("values") && obj.get("values") instanceof JSONArray){
+                    AsciiTable table = new AsciiTable(obj.getJSONArray("values"));
+                    System.out.println(table);
+                }else{
+                    AsciiTable table = new AsciiTable(obj);
+                    System.out.println(table);
+                }
+            }else{
+                JSONArray arr = new JSONArray(resp);
+                AsciiTable table = new AsciiTable(arr);
+                System.out.println(table);
+            }
+        }
     }
 
 }

@@ -34,7 +34,7 @@ public class SqlCommand extends BaseCommand implements Runnable{
                 .put("typesHeader", true);
         try {
             String resp = postJson(queryObj.toString(), path, settings);
-            System.out.println(resp);
+            print(settings, resp);
         } catch (IOException e) {
             System.out.println("Error happens: " + e.getMessage());
         }

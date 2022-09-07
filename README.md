@@ -1,10 +1,9 @@
 ## Description
 The Polaris command-line interface (polaris-cli) is a set of commands used to create and manage Imply SaaS resources. 
-E.g.,  create a table, upload a file, create a batch job, and query based on the data.
+E.g.,  create a table, upload a file, create a batch job, and query data.
 
 ## Requirements
-- Java 1.8 installed
-- An API Client is created
+- Java 1.8+ installed
 
 ## Installation
 - Download [polaris-cli-1.0-all.jar](https://github.com/shshen/polaris-cli/releases/download/v0.1/polaris-cli-1.0-all.jar) to your local,E.g.,~/imply 
@@ -17,14 +16,15 @@ polaris config -e=eng -o=shane-aug10 --client_id=test_client --client_secret=<SE
 ```
 The sub-commands help for a service, e.g., create a detail table:
 ```shell
-polaris tables detail -h
 Usage: polaris tables detail [-h] [--verbose] [-a=<authorization>]
                              [-d=<description>] [-e=<environment>]
                              [-g=<partitioningGranularity>] [-k=<apiKey>]
-                             -n=<name> [-o=<organization>] [-t=<token>]
-                             [-v=<version>] [-c=<clusteringColumns>]...
-                             [-S=<String=String>]...
+                             -n=<name> [-o=<organization>] [--output=<output>]
+                             [-t=<token>] [-v=<version>]
+                             [-c=<clusteringColumns>]... [-S=<String=String>]...
+Description:
 Create a detail table
+Options:
   -a, --authorization=<authorization>
                             Enum values: token, basic
   -c, --columns=<clusteringColumns>
@@ -36,14 +36,14 @@ Create a detail table
   -g, --granularity=<partitioningGranularity>
                             Enum values: hour, day, week, month, year
   -h, --help                Display this help and exit
+  -k, --apiKey=<apiKey>     The apiKey to a Polaris API
   -n, --name=<name>         Table name
   -o, --organization=<organization>
                             Organization name
+      --output=<output>     Enum values: json, table
   -S, --schema=<String=String>
                             Schema map
+  -t, --token=<token>       The access token to a Polaris API
   -v, --version=<version>   Version number of the table
       --verbose             Enable to print debug info
-Authorization section
-  -k, --apiKey=<apiKey>     The apiKey to a Polaris API
-  -t, --token=<token>       The access token to a Polaris API
 ```

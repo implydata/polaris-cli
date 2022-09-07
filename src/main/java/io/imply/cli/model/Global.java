@@ -1,17 +1,18 @@
 package io.imply.cli.model;
 
-import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine;
 import picocli.CommandLine.Option;
 
 public class Global {
 
     public enum Environment { eng, staging, prod }
     public enum Authorization { token,  basic }
+    public enum Output { json,  table }
 
     @Option(names = {"-h", "--help"},
             usageHelp = true,
             description = "Display this help and exit")
-    boolean help;
+    public boolean help;
 
     @Option(names = {"-e","--environment"}, description = "Enum values: ${COMPLETION-CANDIDATES}",
             defaultValue = "${IMPLY_ENV}", required = true)
@@ -21,24 +22,23 @@ public class Global {
             defaultValue = "${IMPLY_ORG}", required = true)
     public String organization;
 
-    @ArgGroup(heading = "Select token or API Key as auth method%n")
-    public AuthSection authSection = new AuthSection();
+    @Option(names= {"--verbose"}, description = "Enable to print debug info")
+    public boolean verbose;
 
-    public static class AuthSection{
-        @Option(names = {"-t", "--token"}, description = "The access token to a Polaris API",
-                defaultValue = "${IMPLY_TOKEN}")
-        public String token;
-
-        @Option(names = {"-k", "--apiKey"}, description = "The apiKey to a Polaris API",
-                defaultValue = "${IMPLY_APIKEY}")
-        public String apiKey;
-    }
+    @Option(names = {"--output"}, description = "Enum values: ${COMPLETION-CANDIDATES}",
+            defaultValue = "json")
+    public Output output = Output.json;
 
     @Option(names = {"-a","--authorization"}, description = "Enum values: ${COMPLETION-CANDIDATES}",
             defaultValue = "${IMPLY_AUTHORIZATION}")
-    public Authorization authorization;
+    public Authorization authorization = Authorization.token;
 
-    @Option(names= {"--verbose"}, description = "Enable to print debug info")
-    public boolean verbose;
+    @Option(names = {"-t", "--token"}, description = "The access token to a Polaris API",
+            defaultValue = "${IMPLY_TOKEN}", required = true)
+    public String token;
+
+    @Option(names = {"-k", "--apiKey"}, description = "The apiKey to a Polaris API",
+            defaultValue = "${IMPLY_APIKEY}")
+    public String apiKey;
 
 }

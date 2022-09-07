@@ -17,7 +17,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 
 @Command(name = "config",
-        description = "Config CLI for env,org,token and apKey",
+        description = "Global settings for env,org,token,and apikey",
         sortOptions = false)
 public class ConfigCommand extends BaseCommand implements Runnable{
 
@@ -26,7 +26,6 @@ public class ConfigCommand extends BaseCommand implements Runnable{
     private static final String PATH = "/protocol/openid-connect/token";
     private final String home = System.getProperty("user.home");
     private final File file = new File(home, PolarisMainCli.POLARIS_FILE);
-
 
     @Option(names = {"-h", "--help"},
             usageHelp = true,
@@ -42,16 +41,16 @@ public class ConfigCommand extends BaseCommand implements Runnable{
     String organization;
 
     @ArgGroup
-    TokenAPIGroup tokenAPIGroup;
+    TokenSection tokenSection;
 
     @Option(names = {"-k", "--apiKey"}, description = "The apiKey to a Polaris API", defaultValue = "${IMPLY_APIKEY}")
     public String apiKey;
 
     @Option(names = {"--auth"}, description = "Enum values: ${COMPLETION-CANDIDATES}",
-            defaultValue = "${IMPLY_AUTHORIZATION}", required = true)
+            defaultValue = "${IMPLY_AUTHORIZATION}")
     public Global.Authorization authorization;
 
-    static class TokenAPIGroup{
+    static class TokenSection {
         @ArgGroup(heading = "Client ID/Secret section%n", exclusive = false)
         ClientIdSection clientSection;
 
@@ -82,16 +81,20 @@ public class ConfigCommand extends BaseCommand implements Runnable{
                 obj.put("IMPLY_APIKEY", apiKey);
             }
 
-            if(tokenAPIGroup!=null && tokenAPIGroup.clientSection != null){
+            if(tokenSection !=null && tokenSection.clientSection != null){
                 String token = retrieveToken(
                         environment.name(), organization,
                         PATH,
-                        tokenAPIGroup.clientSection.client_id, tokenAPIGroup.clientSection.client_secret, verbose);
+                        tokenSection.clientSection.client_id, tokenSection.clientSection.client_secret, verbose);
                 obj.put("IMPLY_TOKEN", token);
             }
 
-            if(tokenAPIGroup!=null && tokenAPIGroup.token != null){
-                obj.put("IMPLY_TOKEN", tokenAPIGroup.token);
+            if(tokenSection !=null && tokenSection.token != null){
+                obj.put("IMPLY_TOKEN", tokenSection.token);
+            }
+
+            if(authorization == null){
+                authorization = Global.Authorization.token;
             }
 
             if(authorization == Global.Authorization.token && !obj.has("IMPLY_TOKEN")) {

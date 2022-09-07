@@ -1,22 +1,65 @@
 package io.imply.cli.util;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class AsciiTable {
 
     private List<String> headers = new ArrayList<>();
     private List<List<String>> data = new ArrayList<>();
 
-    public AsciiTable(String... headers) {
-        this.headers.addAll(Arrays.asList(headers));
+    public AsciiTable(JSONArray array){
+        if(array.isEmpty()){
+            return;
+        }
+        Object o = array.get(0);
+        if(o instanceof JSONObject){
+            JSONObject jo = (JSONObject)o;
+            Set<String> keys = jo.keySet();
+            this.headers.addAll(keys);
+            for(int i=0; i<array.length(); i++){
+                JSONObject obj = array.getJSONObject(i);
+                List<String> row = new ArrayList<>();
+                for(String k: keys){
+                    row.add(obj.optString(k, ""));
+                }
+                this.data.add(row);
+            }
+        }else if(o instanceof JSONArray){
+            if(array.isEmpty()){
+                return;
+            }
+            JSONArray ha = array.getJSONArray(0);
+            List<String> hx = new ArrayList<>();
+            for(int i=0; i<ha.length(); i++){
+                hx.add(ha.get(i).toString());
+            }
+            this.headers.addAll(hx);
+
+            for(int i=1; i<array.length(); i++){
+                List<String> row = new ArrayList<>();
+                JSONArray ja = array.getJSONArray(i);
+                for(int j=0; j<ja.length(); j++){
+                    Object oo = ja.get(j);
+                    row.add(oo.toString());
+                }
+                this.data.add(row);
+            }
+        }
     }
 
-    public void addRow(String... row) {
-        data.add(Arrays.asList(row));
+    public AsciiTable(JSONObject obj){
+        Set<String> keys = obj.keySet();
+        this.headers.addAll(keys);
+        List<String> row = new ArrayList<>();
+        for(String k: keys){
+            row.add(obj.optString(k, ""));
+        }
+        this.data.add(row);
     }
 
     private int getMaxSize(int column) {
@@ -32,11 +75,17 @@ public class AsciiTable {
         StringBuilder result = new StringBuilder();
         result.append("|");
         for (int i = 0; i < row.size(); i++) {
-            result.append(row.get(i));
+            result.append(formatCell(row.get(i), i));
             result.append("|");
         }
         result.append("\n");
         return result.toString();
+    }
+
+    private String formatCell(String x, int i){
+        int maxSize = getMaxSize(i) + 2;
+        int spaces = maxSize - x.length();
+        return String.format("%1$"+spaces+"s"+x, " ");
     }
 
     private String formatRule() {
