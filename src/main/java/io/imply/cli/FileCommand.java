@@ -19,7 +19,8 @@ public class FileCommand extends BaseCommand{
             description = "display this help and exit")
     public boolean help;
 
-    @Command(name = "list", description = "List all files")
+    @Command(name = "list", descriptionHeading = "Description:%n", description = "List all files",
+            optionListHeading = "%n")
     public void list(
             @Mixin Global settings) {
         try {
@@ -30,9 +31,11 @@ public class FileCommand extends BaseCommand{
         }
     }
 
-    @Command(name = "upload", description = "Upload a file")
+    @Command(name = "upload", descriptionHeading = "Description:%n", description = "Upload a file",
+            optionListHeading = "%nFiles options:%n")
     public void upload(
-            @Option(names ={"-f", "--file"}, description = "File to upload", required = true) File file,
+            @Option(names ={"-f", "--file"}, description = "File to upload", required = true, paramLabel="<file>")
+                    File file,
             @Mixin Global settings) {
         try {
             String response = upload(file, PATH, settings);
@@ -42,9 +45,10 @@ public class FileCommand extends BaseCommand{
         }
     }
 
-    @Command(name = "get", description = "Get file details")
+    @Command(name = "get", descriptionHeading = "Description:%n", description = "Get file details",
+            optionListHeading = "%nFiles options:%n")
     public void get(
-            @Option(names = {"-n","--name"}, description = "File Name", required = true)
+            @Option(names = {"-n","--name"}, description = "File Name", required = true, paramLabel="<name>")
                     String name,
             @Mixin Global settings) {
         try {
@@ -56,7 +60,8 @@ public class FileCommand extends BaseCommand{
         System.out.println("Get file details");
     }
 
-    @Command(name = "delete", description = "Delete a file")
+    @Command(name = "delete", descriptionHeading = "Description:%n", description = "Delete a file",
+            optionListHeading = "%nFiles options:%n")
     public void delete(
             @Mixin Global settings) {
         System.out.println("Not supported yet");

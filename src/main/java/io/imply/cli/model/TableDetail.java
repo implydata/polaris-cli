@@ -17,7 +17,7 @@ public class TableDetail {
     public enum TablePartitioningGranularity{ hour, day, week, month, year }
 
     @Spec
-    CommandSpec spec;
+    CommandSpec spec2;
 
     @Option(names = {"-n","--name"}, description = "Table name", required = true)
     public String name;
@@ -42,7 +42,7 @@ public class TableDetail {
         Collection<String> values = schemaMap.values();
         for(String v: values){
             if(!"string".equals(v) && !"long".equals(v) && !"double".equals(v) && !"timestamp".equals(v)){
-                throw new ParameterException(spec.commandLine(), "Invalid value for option " +
+                throw new ParameterException(spec2.commandLine(), "Invalid value for option " +
                         "'--schema' (<String=String>): expected one of [timestamp, string, long, double] (case-sensitive) but was '"+v+"'");
             }
         }

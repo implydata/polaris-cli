@@ -2,7 +2,6 @@ package io.imply.cli;
 
 import io.imply.cli.model.Global;
 import io.imply.cli.model.TableDetail;
-import picocli.CommandLine;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -19,7 +18,8 @@ public class TableCommand extends BaseCommand {
             description = "Display this help and exit")
     public boolean help;
 
-    @Command(name = "list", description = "List all tables", descriptionHeading = "Description:%n", optionListHeading = "Options:%n")
+    @Command(name = "list", descriptionHeading = "Description:%n", description = "List all tables",
+            optionListHeading = "%n")
     public void list(
             @Mixin Global settings) {
         try {
@@ -30,11 +30,11 @@ public class TableCommand extends BaseCommand {
         }
     }
 
-    @Command(name = "detail", descriptionHeading = "Description:%n", optionListHeading = "Options:%n",
-            description = "Create a detail table")
+    @Command(name = "detail", descriptionHeading = "Description:%n",
+            description = "Create a detail table", optionListHeading = "%nTable Options:%n")
     public void createDetail(
-            @Mixin Global settings,
-            @Mixin TableDetail tableDetail) {
+            @Mixin TableDetail tableDetail,
+            @Mixin Global settings) {
         try {
             String resp = postJson(tableDetail.toJSONObject(), PATH, settings);
             print(settings, resp);
@@ -43,13 +43,15 @@ public class TableCommand extends BaseCommand {
         }
     }
 
-    @Command(name = "aggregate", description = "Create an aggregate table")
+    @Command(name = "aggregate", descriptionHeading = "Description:%n", description = "Create an aggregate table",
+            optionListHeading = "%nTable Options:%n")
     public void createAggregate(
             @Mixin Global settings) {
         System.out.println("Not supported yet");
     }
 
-    @Command(name = "get", description = "Get a table detail")
+    @Command(name = "get", descriptionHeading = "Description:%n", description = "Get a table detail",
+            optionListHeading = "%nTable options:%n")
     public void get(
             @Option(names = {"-n","--tableName"}, description = "Table Name",
                     required = true, paramLabel = "<tableName>")
@@ -63,7 +65,8 @@ public class TableCommand extends BaseCommand {
         }
     }
 
-    @Command(name = "update", description = "Update a table")
+    @Command(name = "update", descriptionHeading = "Description:%n", description = "Update a table",
+            optionListHeading = "%nTable options:%n")
     public void update(
             @Mixin TableDetail tableDetail,
             @Mixin Global settings) {

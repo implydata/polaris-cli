@@ -123,11 +123,14 @@ public abstract class BaseCommand {
 
 
     private String service(String method, HttpEntity reqEntity, String path, Global global) throws IOException{
+
+        global.validate();
+
         try( CloseableHttpClient httpclient = HttpClientBuilder.create()
                 .setDefaultRequestConfig(config)
                 .setConnectionManager(manager)
                 .build()){
-            String url = buildEndpoint(global.environment.name(), global.organization, path);
+            String url = buildEndpoint(global.generalSection.environment.name(), global.generalSection.organization, path);
 
             HttpUriRequestBase baseRequest;
             if("POST".equals(method)){
@@ -144,17 +147,17 @@ public abstract class BaseCommand {
                 throw new IllegalArgumentException("Unknown http method: " + method);
             }
 
-            if(global.authorization == Global.Authorization.token || isIDRequest(path)){
-                baseRequest.setHeader("Authorization", "Bearer " + global.token);
+            if(global.generalSection.authorization == Global.Authorization.token || isIDRequest(path)){
+                baseRequest.setHeader("Authorization", "Bearer " + global.generalSection.token);
             }else{
-                baseRequest.setHeader("Authorization", "Basic " + global.apiKey);
+                baseRequest.setHeader("Authorization", "Basic " + global.generalSection.apiKey);
             }
             if (reqEntity !=null ){
                 baseRequest.setHeader("Accept", "application/json");
                 baseRequest.setEntity(reqEntity);
             }
 
-            if(global.verbose){
+            if(global.generalSection.verbose){
                 print(baseRequest);
             }
             try(CloseableHttpResponse httpresponse = httpclient.execute(baseRequest)){
@@ -163,7 +166,7 @@ public abstract class BaseCommand {
                 if (entity !=null){
                     respEntity = EntityUtils.toString(entity);
                 }
-                if(global.verbose){
+                if(global.generalSection.verbose){
                     printResponse(httpresponse, respEntity);
                 }
                 return respEntity;
@@ -244,7 +247,7 @@ public abstract class BaseCommand {
     }
 
     public void print(Global settings, String resp){
-        if(settings.output == Global.Output.json){
+        if(settings.generalSection.output == Global.Output.json){
             System.out.println(resp);
         }else{
             if(resp.startsWith("{")){

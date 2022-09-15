@@ -25,7 +25,8 @@ public class JobCommand extends BaseCommand{
             description = "display this help and exit")
     boolean help;
 
-    @Command(name = "list", description = "List all jobs")
+    @Command(name = "list", descriptionHeading = "Description:%n", description = "List all jobs",
+            optionListHeading = "%n")
     public void list(
             @Mixin Global settings) {
         try {
@@ -36,7 +37,8 @@ public class JobCommand extends BaseCommand{
         }
     }
 
-    @Command(name = "get", description = "Get job details")
+    @Command(name = "get", descriptionHeading = "Description:%n", description = "Get job details",
+            optionListHeading = "%nJobs option:%n")
     public void get(
             @Option(names = {"-j","--jobId"}, description = "Job Id", required = true)
                     String jobId,
@@ -49,13 +51,15 @@ public class JobCommand extends BaseCommand{
         }
     }
 
-    @Command(name = "update", description = "Update a job")
+    @Command(name = "update", descriptionHeading = "Description:%n", description = "Update a job",
+            optionListHeading = "%nJobs option:%n")
     public void update(
             @Mixin Global settings) {
         System.out.println("Not supported yet");
     }
 
-    @Command(name = "batch", description = "Create batch ingestion job")
+    @Command(name = "batch", descriptionHeading = "Description:%n", description = "Create batch ingestion job",
+            optionListHeading = "%nJobs option:%n")
     public void createBatch(
             @Mixin JobSourceV2 jobSourceV2,
             @Mixin JobTargetV2 jobTargetV2,
@@ -82,19 +86,22 @@ public class JobCommand extends BaseCommand{
         }
     }
 
-    @Command(name = "drop_table", description = "Create job to delete a table and all of its data")
+    @Command(name = "drop_table", descriptionHeading = "Description:%n",
+            description = "Create job to delete a table and all of its data", optionListHeading = "%nJobs option:%n")
     public void createDropTable(
             @Mixin Global settings) {
         System.out.println("Not supported yet");
     }
 
-    @Command(name = "delete_data", description = "Create job to delete data within a table")
+    @Command(name = "delete_data", descriptionHeading = "Description:%n",
+            description = "Create job to delete data within a table", optionListHeading = "%nJobs option:%n")
     public void createDeleteData(
             @Mixin Global settings) {
         System.out.println("Not supported yet");
     }
 
-    @Command(name = "streaming", description = "Create streaming ingestion job")
+    @Command(name = "streaming", descriptionHeading = "Description:%n",
+            description = "Create streaming ingestion job", optionListHeading = "%nJobs option:%n")
     public void createStreaming(
             @Mixin Global settings) {
         System.out.println("Not supported yet");

@@ -19,13 +19,14 @@ public class ApiKeyCommand extends BaseCommand {
             description = "Display this help and exit")
     public boolean help;
 
-    @Command(name = "create", description = "create a api key")
+    @Command(name = "create", descriptionHeading = "Description:%n",description = "Create an api key",
+            optionListHeading = "%nApiKeys options:%n")
     public void create(
             @Mixin ApiKeyRequest apiKeyRequest,
             @Mixin Global settings) {
         JSONObject obj = new JSONObject().put("name", apiKeyRequest.name)
                 .put("description", apiKeyRequest.description)
-                .put("roles", apiKeyRequest.roles);
+                .put("permissions", apiKeyRequest.roles);
         try {
             String response = postJson(obj.toString(), PATH, settings);
             System.out.println(response);
@@ -34,7 +35,8 @@ public class ApiKeyCommand extends BaseCommand {
         }
     }
 
-    @Command(name = "list", description = "List all api keys")
+    @Command(name = "list", descriptionHeading = "Description:%n", description = "List all api keys",
+            optionListHeading = "%n")
     public void list(
             @Mixin Global settings) {
         try {
@@ -45,9 +47,10 @@ public class ApiKeyCommand extends BaseCommand {
         }
     }
 
-    @Command(name = "get", description = "Get an API Key")
+    @Command(name = "get", descriptionHeading = "Description:%n", description = "Get an API Key",
+            optionListHeading = "%nApiKeys options:%n")
     public void get(
-            @Option(names = {"--id"}, description = "API Key ID", required = true)
+            @Option(names = {"--id"}, description = "API Key ID", required = true, paramLabel="<id>")
                     String id,
             @Mixin Global settings) {
         try {
@@ -58,9 +61,10 @@ public class ApiKeyCommand extends BaseCommand {
         }
     }
 
-    @Command(name = "delete", description = "Delete an API Key")
+    @Command(name = "delete", descriptionHeading = "Description:%n", description = "Delete an API Key",
+            optionListHeading = "%nApiKeys options:%n")
     public void delete(
-            @Option(names = {"--id"}, description = "API Key ID", required = true)
+            @Option(names = {"--id"}, description = "API Key ID", required = true, paramLabel="<id>")
                     String id,
             @Mixin Global settings) {
         try {
@@ -70,22 +74,23 @@ public class ApiKeyCommand extends BaseCommand {
         }
     }
 
-    @Command(name = "patch", description = "Update/Patch an API Key")
+    @Command(name = "patch", descriptionHeading = "Description:%n", description = "Update an API Key",
+            optionListHeading = "%nApiKeys options:%n")
     public void patch(
             @Option(names = {"--id"}, description = "API Key ID", required = true)
                     String id,
             @Mixin ApiKeyRequest apiKeyRequest,
             @Mixin Global settings) {
         try {
-            JSONObject obj = new JSONObject().put("name", apiKeyRequest.name)
+            JSONObject obj = new JSONObject()
+                    .put("name", apiKeyRequest.name)
                     .put("description", apiKeyRequest.description)
-                    .put("roles", apiKeyRequest.roles);
+                    .put("permissions", apiKeyRequest.roles);
             String response = patchRequest(obj.toString(), PATH + "/" + id, settings);
             System.out.println(response);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
 }

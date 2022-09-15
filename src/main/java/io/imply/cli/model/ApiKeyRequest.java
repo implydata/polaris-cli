@@ -1,7 +1,6 @@
 package io.imply.cli.model;
 
 import picocli.CommandLine.Option;
-import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 import picocli.CommandLine.Model.CommandSpec;
 
@@ -22,18 +21,6 @@ public class ApiKeyRequest {
 
     @Option(names = {"-r","--roles"}, description = "Role List")
     public List<String> roles;
-
-//    @Option(names = {"-r","--roles"}, description = "Role List")
-//    public void setRoles(List<String> roles){
-//        for(String r: roles){
-//            if(!roleSet.contains(r)){
-//                throw new ParameterException(spec.commandLine(), "Invalid value for option " +
-//                        "'--roles' (String): expected one of [ViewTables,AccessQueries,Others...] (case-sensitive) but was '"+r+"'");
-//            }
-//        }
-//
-//        this.roles = roles;
-//    }
 
     @Option(names = {"-d","--description"}, description = "Table description.")
     public String description;
